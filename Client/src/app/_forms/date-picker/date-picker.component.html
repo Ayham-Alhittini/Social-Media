@@ -1,0 +1,20 @@
+<div class="mb-3">
+    <input 
+        type="text"
+        [class.is-invalid]="ngControl.invalid && ngControl?.touched"
+        [formControl]="ngControl.control"
+        placeholder="{{label}}"
+        class="form-control"
+        bsDatepicker
+        [bsConfig]="bsConfig"
+        [maxDate]="maxDate"
+    >
+
+    <div class="invalid-feedback" *ngIf="ngControl.hasError('required')">
+        Please enter a {{label}}
+    </div>
+    <div class="invalid-feedback" *ngIf="ngControl.hasError('bsDate')">
+        You must be at least 18 years old.
+    </div>
+
+</div>

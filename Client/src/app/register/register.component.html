@@ -1,0 +1,29 @@
+<form [formGroup]="registerForm" (ngSubmit)="register()" autocomplete="off">
+    <h2 class="text-center text-primary">Sign Up</h2>
+    <hr>
+    
+    <div class="mb-3">
+        <label style="margin-right: 10px;">I am a : </label>
+        <label class="form-check-label">
+            <input type="radio" class="form-check-input" value="male" formControlName="gender">Male
+        </label>
+        <label class="form-check-label ms-3">
+            <input type="radio" class="form-check-input" value="female" formControlName="gender">Female
+        </label>
+    </div>
+
+    <app-text-input [formControl]="registerForm.controls['username']" [label]="'Username'" [type]="'text'"></app-text-input>
+
+    <app-text-input [formControl]="registerForm.controls['knownAs']" [label]="'Known As'" [type]="'text'"></app-text-input>
+
+    <app-date-picker [formControl]="registerForm.controls['dateOfBirth']" [label]="'Date Of Birth'" [maxDate]="maxDate"></app-date-picker>
+    <app-text-input [formControl]="registerForm.controls['city']" [label]="'City'" [type]="'text'"></app-text-input>
+    <app-text-input [formControl]="registerForm.controls['country']" [label]="'Country'" [type]="'text'"></app-text-input>
+    <app-text-input [formControl]="registerForm.controls['password']" [label]="'Password'" [type]="'password'"></app-text-input>
+    <app-text-input [formControl]="registerForm.controls['confirmPassword']" [label]="'Confirm Password'" [type]="'password'"></app-text-input>
+
+    <div class="text-center">
+        <button class="btn btn-success me-2" type="submit" [disabled]="registerForm.invalid">Register</button>
+        <button class="btn btn-default" type="button" (click)="onCancel()">Cancel</button>
+    </div>
+</form>

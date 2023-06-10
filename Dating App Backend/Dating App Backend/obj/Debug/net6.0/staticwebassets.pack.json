@@ -1,0 +1,73 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\3rdpartylicenses.txt",
+      "PackagePath": "staticwebassets\\3rdpartylicenses.txt"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\assets\\user.png",
+      "PackagePath": "staticwebassets\\assets\\user.png"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\fontawesome-webfont.2b13baa7dd4f54c9.eot",
+      "PackagePath": "staticwebassets\\fontawesome-webfont.2b13baa7dd4f54c9.eot"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\fontawesome-webfont.8a7cb27d142e3e19.ttf",
+      "PackagePath": "staticwebassets\\fontawesome-webfont.8a7cb27d142e3e19.ttf"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\fontawesome-webfont.cf011583fb81df9f.woff",
+      "PackagePath": "staticwebassets\\fontawesome-webfont.cf011583fb81df9f.woff"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\fontawesome-webfont.da909aa098b0ee2d.svg",
+      "PackagePath": "staticwebassets\\fontawesome-webfont.da909aa098b0ee2d.svg"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\fontawesome-webfont.e9955780856cf8aa.woff2",
+      "PackagePath": "staticwebassets\\fontawesome-webfont.e9955780856cf8aa.woff2"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\main.52853f5f29c66782.js",
+      "PackagePath": "staticwebassets\\main.52853f5f29c66782.js"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\polyfills.da0d966135788e97.js",
+      "PackagePath": "staticwebassets\\polyfills.da0d966135788e97.js"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\runtime.01fec06f14767966.js",
+      "PackagePath": "staticwebassets\\runtime.01fec06f14767966.js"
+    },
+    {
+      "Id": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\wwwroot\\styles.30652d969b915862.css",
+      "PackagePath": "staticwebassets\\styles.30652d969b915862.css"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.Dating App Backend.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.build.Dating App Backend.props",
+      "PackagePath": "build\\Dating App Backend.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildMultiTargeting.Dating App Backend.props",
+      "PackagePath": "buildMultiTargeting\\Dating App Backend.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildTransitive.Dating App Backend.props",
+      "PackagePath": "buildTransitive\\Dating App Backend.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
