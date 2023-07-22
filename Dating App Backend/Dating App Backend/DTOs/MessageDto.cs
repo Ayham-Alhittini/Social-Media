@@ -15,5 +15,6 @@ namespace Dating_App_Backend.DTOs
         public DateTime? DateRead { get; set; }
         public DateTime MessageSent { get; set; }
         public int UnreadCount { get; set; }
+        public string listPhotoUrl { get; set; }
     }
 }

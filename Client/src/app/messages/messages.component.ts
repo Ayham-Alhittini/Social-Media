@@ -1,155 +1,121 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Message } from '../Models/message';
-import { Pagination } from '../Models/pagination';
 import { MessagesService } from '../_services/messages.service';
+import { Message } from '../Models/message';
 import { User } from '../Models/user';
 import { AccountService } from '../_services/account.service';
-import { first, take, tap } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MemberService } from '../_services/member.service';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-messages',
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.css']
 })
-export class MessagesComponent implements OnInit{
-
-  timerId: any;
-  activeChat = 0;
-  messages : Message[] = [];
-
-
-  chatMessageThread: Message[] = [];
-  pagination: Pagination;
-  container = 'unread';
-  pageNumber = 1;
-  pageSize = 5;
-  isLoading = true;
-
+export class MessagesComponent implements OnInit, OnDestroy{
+  list: Message[] = [];
   user: User;
-  constructor(private messageService: MessagesService,
-    private accountService: AccountService,
-    private route: ActivatedRoute,
-    private memberService: MemberService,
-    private router: Router) { }
+  selectedChat = -1;
+  loading = false;
 
 
-  loadMessageList() {
-    this.messageService.GetMessages().subscribe({
-      next: res => {
-        this.messages = res;
-        this.loadFromParams();
-      }
-    });
-  }
-  ngOnInit(): void {
-    
-    this.loadMessageList();
-
-    this.messageService.lastMessageUpdated.subscribe({
-      next: res => {
-        ///find which one from them are and replace it with the new value
-        ///remove him and put him in the top of the page
-        const otherRes = this.otherPerson(res);
-        this.messages = this.messages.filter(msg => this.otherPerson(msg) != otherRes);
-        this.messages.unshift(res);
-        this.activeChat = 0;
-      }
-    });
-    this.accountService.loadedUser.pipe(take(1), tap(res => {
-      this.user = res;
-    })).subscribe();
-
-    this.isLoading = false;
-
-  }
-
-  loadFromParams() {
-    this.route.queryParams.subscribe({
-      next: res => {
-        const friedName = res['user'];
-        if (friedName) {
-          ///if exist  on chat mark it as active and load it for him
-
-          let found = false;
-          for (let index = 0; index < this.messages.length; index++) {
-            const element = this.messages[index];
-            
-            if (element.senderUsername === friedName || element.recipenetUsername === friedName) {
-              this.activeChat = index;
-              this.onChatLoad(this.activeChat);
-              found = true;
-              break;
-            }
-          }
-
-          if (!found) {
-            ///search if this user is exit on database (if not send error)
-            this.memberService.getMember(friedName).subscribe({
-              next: res => {
-                ///add it and mark it active
-
-                ///simulate message is exist
-
-                let message: Message = {
-                  id: -1,
-                  senderId: '',
-                  recipenetId: '',
-                  dateRead: null,
-                  messageSent: null,
-                  senderUsername: this.user.username,
-                  senderPhotoUrl: this.user.photoUrl,
-                  recipenetUsername: friedName,
-                  recipenetPhotoUrl: res.photoUrl,
-                  unreadCount: 0,
-                  content: ''
-                }
-
-                this.messages.push(message);
-                ///now mark it as active without load it's messages since he have nothing
-                this.activeChat = this.messages.length - 1;
-                
-              }
-            });
-          }
-
-        }
-        else {
-          this.getChatThread();
-        }
-      }
-    });
-  }
-
-  getChatThread() {
-    if (this.messages.length > 0) {
-      this.messageService.GetMessagesThread(this.otherPerson(this.messages[this.activeChat])).subscribe({
-        next: res => {
-          this.chatMessageThread = res;
-          this.messages[this.activeChat] = this.chatMessageThread[this.chatMessageThread.length - 1];
-        }
+  constructor(public messageService: MessagesService,
+    private accountService:AccountService){
+      accountService.loadedUser.pipe(take(1)).subscribe({
+        next: res => this.user = res
       })
-    }
-  }
-
-  otherPerson(message: Message): string {
-    return message.senderUsername != this.user.username ? message.senderUsername : message.recipenetUsername;
-  }
-
-  OtherPersonActive() {
-    return this.messages[this.activeChat].senderUsername != this.user.username ? this.messages[this.activeChat].senderUsername : this.messages[this.activeChat].recipenetUsername;
-  }
-
-  onChatLoadRoute(msg: Message) {
-    msg.unreadCount = 0;
-    this.router.navigateByUrl('/messages?user=' + this.otherPerson(msg));
   }
   
-  onChatLoad(chatIndex: number) {
-    this.activeChat = chatIndex;
-    this.messages[this.activeChat].unreadCount = 0;
-    this.getChatThread();
+  ngOnInit(): void {
+    this.loading = true;
+    this.messageService.onMessagesComponent = true;
+
+    ////fetch the messages list
+    this.messageService.GetMessages().subscribe({
+      next: res => {
+        this.list = res;
+        this.loading = false;
+      }
+    });
+
+
+    ///update last message on message list
+    this.messageService.lastMessageUpdate.subscribe({
+      next: (msg: Message) => {
+        
+        ///message i sent
+        if (this.user.username === msg.senderUsername) 
+        {
+          const chatName = msg.recipenetUsername;
+          
+          const sendedChat = this.list.find(x => this.messageService.getChatName(this.user, x) === chatName);
+  
+          sendedChat.content = msg.content;
+  
+          this.list = this.list.filter(x => this.messageService.getChatName(this.user, x) !== chatName);
+  
+          this.list = [sendedChat, ...this.list];
+          this.selectedChat = 0;
+        }
+        ///message i get
+        else
+        {
+          
+          const selectedChatName = this.selectedChat === -1 ? null : this.messageService.getChatName(this.user, this.list[this.selectedChat]);
+
+          ///check if it's on the list
+          const chatName = msg.senderUsername;
+          const recivedChat = this.list.find(x => this.messageService.getChatName(this.user, x) === chatName);
+          
+          if (recivedChat)
+          {
+            ///check if it's the active chat
+            if (this.selectedChat !== -1 && selectedChatName === chatName) 
+            {
+              recivedChat.unreadCount = 0; 
+            }
+            else 
+            {
+              recivedChat.unreadCount++;
+            }
+            
+            this.list = this.list.filter(x => this.messageService.getChatName(this.user, x) !== chatName);
+            recivedChat.content = msg.content;
+            this.list = [recivedChat, ...this.list];
+
+            ///find the new index of the selected chat
+            for (let index = 0; index < this.list.length && this.selectedChat !== -1; index++) {
+              const element = this.messageService.getChatName(this.user, this.list[index]);
+              if (element === selectedChatName)
+              { 
+                this.selectedChat = index;
+                break; 
+              }
+            }
+
+          }
+          else
+          {
+            ///could not be the active chat
+            msg.unreadCount = 1;
+            msg.listPhotoUrl = msg.senderPhotoUrl;
+            this.list = [msg, ...this.list];
+          }
+        }
+
+      }
+    })
+  }
+
+
+  selectChat(idx: number) {
+    this.selectedChat = idx;
+    this.list[this.selectedChat].unreadCount = 0;
+    this.messageService.stopConnection();
+    this.messageService.createHubConnection(this.user, this.messageService.getChatName(this.user, this.list[this.selectedChat]));
+  }
+
+
+  ngOnDestroy(): void {
+    this.messageService.onMessagesComponent = false;
+    this.messageService.stopConnection()
   }
 }
-

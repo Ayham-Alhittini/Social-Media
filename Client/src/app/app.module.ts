@@ -12,7 +12,6 @@ import { RegisterComponent } from './register/register.component';
 import { ListsComponent } from './lists/lists.component';
 import { MemberDetailComponent } from './members/member-detail/member-detail.component';
 import { MemberListComponent } from './members/member-list/member-list.component';
-import { MessagesComponent } from './messages/messages.component';
 import { SharedModule } from './_modules/shared.module';
 import { TestErrorComponent } from './errors/test-error/test-error.component';
 import { ErrorInterceptor } from './_interceptor/error.interceptor';
@@ -26,6 +25,7 @@ import { PhotoEditorComponent } from './members/photo-editor/photo-editor.compon
 import { TextInputComponent } from './_forms/text-input/text-input.component';
 import { DatePickerComponent } from './_forms/date-picker/date-picker.component';
 import { MemberMessagesComponent } from './members/member-messages/member-messages.component';
+import { MessagesComponent } from './messages/messages.component';
 import { MessageCardComponent } from './messages/message-card/message-card.component';
 
 @NgModule({
@@ -37,7 +37,6 @@ import { MessageCardComponent } from './messages/message-card/message-card.compo
     ListsComponent,
     MemberDetailComponent,
     MemberListComponent,
-    MessagesComponent,
     TestErrorComponent,
     NotFoundComponent,
     ServerErrorComponent,
@@ -47,6 +46,7 @@ import { MessageCardComponent } from './messages/message-card/message-card.compo
     TextInputComponent,
     DatePickerComponent,
     MemberMessagesComponent,
+    MessagesComponent,
     MessageCardComponent
   ],
   imports: [

@@ -1,9 +1,17 @@
 <div class="row">
     <div class="col-4">
         <div class="card">
+
+            
+            
             <img src="{{member.photoUrl || './assets/user.png'}}" alt="{{member.knownAs}}"
             class="card-img-top img-thumbnail">
             <div class="card-body">
+                <div>
+                    <strong *ngIf="(presenceService.onlineUsers$ | async)?.includes(member.userName)" style="color: rgb(1, 189, 42);">
+                        Online Now
+                    </strong>
+                </div>
                 <div>
                     <strong>Location :</strong>
                     <p>{{member.country}}, {{member.city}}</p>
@@ -24,8 +32,7 @@
             <div class="card-footer">
                 <div class="btn-group d-flex">
                     <button class="btn btn-primary" (click)="addLike()">{{state}}</button>
-                    <!-- <button class="btn btn-success" (click)="selectTab('Messages')">Message</button> -->
-                    <button class="btn btn-success" (click)="loadMessages()">Message</button>
+                    <button class="btn btn-success" (click)="selectTab('Messages')">Message</button>
                 </div>
             </div>
         </div>
@@ -46,7 +53,7 @@
                 <ngx-gallery [options]="galleryOptions" [images]="galleryImages" class="ngx-gallery"></ngx-gallery>
             </tab>
             <tab heading="Messages" (selectTab)="onTabActivaited($event)">
-                
+                <app-member-messages [username]="member.userName"></app-member-messages>
             </tab>
         </tabset>
     </div>

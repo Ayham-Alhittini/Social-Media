@@ -9,10 +9,16 @@ namespace Dating_App_Backend.Interfaces
         void AddMessage(Message message);
         void DeleteMessage(Message message);
         Task<Message> GetMessageAsync(int Id);
-        Task<Message> PreviousLast(string user1, string user2);
         Task<IEnumerable<MessageDto>> GetMessageThread(string currentName, string recipeName);
-        Task<IEnumerable<MessageDto>> GetMessagesList(string currentUser);
-        Task<Dictionary<int, int>> GetUnread(string currentUser);
         Task<bool> SaveAllAsync();
+
+        void AddGroup(Group group);
+        void RemoveConnection(Connection connection);
+        Task<Connection> GetConnection(string connectionId);
+        Task<Group> GetMessageGroup(string groupName);
+
+        Task<int> GetUnreadCount(string username);
+        Task<int> GetUnreadCountFromUser(string username, string senderUsername);
+
     }
 }

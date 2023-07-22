@@ -1,24 +1,10 @@
-<div class="row">
-    <div class="col-3">
-        <img src="{{getImage() || './assets/user.png'}}" class="user-image" alt="">
-    </div>
-    <div class="col-9">
-       <strong style="display: block;"> {{getName()}}</strong>
-       <span>{{determineSender()}}{{message.content.length > 15 ? message.content.substring(0, 15) + '...' : message.content}}</span>
-       
-
-       <!-- to show  unread but have a problem that messages been read without open their page-->
-
-
-       <!-- <div class="row">
-        <div class="col-10">
+<div class="d-flex">
+    <img src="{{message.listPhotoUrl}}" alt="chat photo" class="rounded-circle me-2" style="max-width: 60px;">
+    <div>
+        <strong class="d-block"> {{messageService.getChatName(user, message)}} </strong>
+        <div class="d-flex">
+            <p class="mr-auto">{{messageService.cutLargeMessage(message.content)}}</p>
+            <p *ngIf="message.unreadCount > 0" class="badge bg-danger rounded-circle" style="position: absolute; right: 0; margin-right: 10px;">{{message.unreadCount}}</p>
         </div>
-        <div class="col-2">
-            <span *ngIf="message.unreadCount > 0" style="background: red;padding: 4px;border-radius: 50%;color: white;">
-                {{message.unreadCount}}
-            </span>
-        </div>
-       </div> -->
-       
     </div>
 </div>

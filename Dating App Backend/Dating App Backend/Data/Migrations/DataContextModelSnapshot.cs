@@ -165,6 +165,34 @@ namespace Dating_App_Backend.Migrations
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
+            modelBuilder.Entity("Dating_App_Backend.Entities.Connection", b =>
+                {
+                    b.Property<string>("ConnectionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("GroupName")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ConnectionId");
+
+                    b.HasIndex("GroupName");
+
+                    b.ToTable("Connections");
+                });
+
+            modelBuilder.Entity("Dating_App_Backend.Entities.Group", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("Groups");
+                });
+
             modelBuilder.Entity("Dating_App_Backend.Entities.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -179,8 +207,8 @@ namespace Dating_App_Backend.Migrations
                     b.Property<DateTime?>("DateRead")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("LastMessage")
-                        .HasColumnType("bit");
+                    b.Property<string>("GroupName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("MessageSent")
                         .HasColumnType("datetime2");
@@ -202,9 +230,6 @@ namespace Dating_App_Backend.Migrations
 
                     b.Property<string>("SenderUsername")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UnreadCount")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -364,6 +389,13 @@ namespace Dating_App_Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Dating_App_Backend.Entities.Connection", b =>
+                {
+                    b.HasOne("Dating_App_Backend.Entities.Group", null)
+                        .WithMany("Connections")
+                        .HasForeignKey("GroupName");
+                });
+
             modelBuilder.Entity("Dating_App_Backend.Entities.Message", b =>
                 {
                     b.HasOne("Dating_App_Backend.Entities.AppUser", "Recipenet")
@@ -467,6 +499,11 @@ namespace Dating_App_Backend.Migrations
                     b.Navigation("Photos");
 
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("Dating_App_Backend.Entities.Group", b =>
+                {
+                    b.Navigation("Connections");
                 });
 #pragma warning restore 612, 618
         }

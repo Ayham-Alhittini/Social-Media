@@ -4,6 +4,7 @@ using Dating_App_Backend.Helper;
 using Dating_App_Backend.Interfaces;
 using Dating_App_Backend.Middleware;
 using Dating_App_Backend.Services;
+using Dating_App_Backend.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -60,6 +61,9 @@ builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<LogUserActivity>();
 builder.Services.AddScoped<ILikesRepository, LikesRepository>();
 builder.Services.AddScoped<IMessagesRepository, MessageRepository>();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<PresenceTracker>();
+
 
 builder.Services.AddIdentityCore<AppUser>(opt =>
 {
@@ -78,6 +82,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey"])),
             ValidateIssuer = false,
             ValidateAudience = false,
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs") )
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }           
         };
     });
 
@@ -103,11 +123,11 @@ app.UseHttpsRedirection();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200"));
+    app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:4200"));
 }
 else if (app.Environment.IsProduction())
 {
-    app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://ayhamprojects-001-site1.atempurl.com/"));
+    app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://ayhamprojects-001-site1.atempurl.com/"));
 }
 
 app.UseAuthentication();
@@ -118,6 +138,10 @@ app.UseStaticFiles();
 
 
 app.MapControllers();
+
+app.MapHub<PresenceHub>("hubs/presence");
+app.MapHub<MessageHub>("hubs/message");
+
 app.MapFallbackToController("Index", "Fallback");
 
 using var scope = app.Services.CreateScope();
@@ -128,6 +152,7 @@ try
     var userManager = services.GetRequiredService<UserManager<AppUser>>();
     var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
     await context.Database.MigrateAsync();
+    await context.Database.ExecuteSqlRawAsync("DELETE FROM [Connections]");
     await Seed.SeedUsers(userManager, roleManager);
 }
 catch{}

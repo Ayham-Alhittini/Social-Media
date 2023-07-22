@@ -4,7 +4,6 @@ using Dating_App_Backend.DTOs;
 using Dating_App_Backend.Entities;
 using Dating_App_Backend.Helper;
 using Dating_App_Backend.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dating_App_Backend.Data
@@ -13,11 +12,18 @@ namespace Dating_App_Backend.Data
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
+
         public MessageRepository(DataContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
+
+        public void AddGroup(Group group)
+        {
+            _context.Groups.Add(group);
+        }
+
         public void AddMessage(Message message)
         {
             _context.Messages.Add(message);
@@ -26,6 +32,11 @@ namespace Dating_App_Backend.Data
         public void DeleteMessage(Message message)
         {
             _context.Messages.Remove(message);
+        }
+
+        public async Task<Connection> GetConnection(string connectionId)
+        {
+            return await _context.Connections.FindAsync(connectionId);
         }
 
         public async Task<Message> GetMessageAsync(int Id)
@@ -49,43 +60,29 @@ namespace Dating_App_Backend.Data
                 messageParams.PageNumber, messageParams.PageSize);
         }
 
-        public async Task<IEnumerable<MessageDto>> GetMessagesList(string currentUser)
+        public async Task<Group> GetMessageGroup(string groupName)
         {
-            var messages =  await _context.Messages
-                .Where(m => m.LastMessage && (m.RecipenetUsername == currentUser || m.SenderUsername == currentUser))
-                .OrderByDescending(m => m.MessageSent)
-                .ProjectTo<MessageDto>(_mapper.ConfigurationProvider)
-                .ToListAsync();
-
-
-            var unread = await GetUnread(currentUser);
-
-            foreach(var message in messages)
-            {
-                if (unread.ContainsKey(message.Id))
-                {
-                    message.UnreadCount = unread[message.Id];
-                }
-            }
-
-            return messages;
+            return await _context.Groups.Include(x => x.Connections)
+                .FirstOrDefaultAsync(x => x.Name == groupName);
         }
 
-        public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentName, string recipeName)
+
+        public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentName, string otherName)
         {
             var messages = await _context.Messages.
                 Where
                 (
-                    m => (m.SenderUsername == currentName && m.RecipenetUsername == recipeName && !m.SenderDeleted) ||
-                    (m.SenderUsername == recipeName && m.RecipenetUsername == currentName && !m.RecipenetDeleted)
+                    m => (m.SenderUsername == currentName && m.RecipenetUsername == otherName && !m.SenderDeleted) ||
+                    (m.SenderUsername == otherName && m.RecipenetUsername == currentName && !m.RecipenetDeleted)
                 ).Include(s => s.Sender).ThenInclude(p => p.Photos)
                 .Include(s => s.Recipenet).ThenInclude(p => p.Photos).
                 OrderBy(d => d.MessageSent).ToListAsync();
 
+
             var unread = _context.Messages.
                 Where
                 (
-                    m => m.DateRead == null && m.RecipenetUsername == currentName
+                    m => m.DateRead == null && m.RecipenetUsername == currentName && m.SenderUsername == otherName
                 ).ToList();
 
             if (unread.Any())
@@ -100,39 +97,19 @@ namespace Dating_App_Backend.Data
             return _mapper.Map<IEnumerable<MessageDto>>(messages);
         }
 
-        public async Task<Dictionary<int, int>> GetUnread(string currentUser)
+        public async Task<int> GetUnreadCount(string username)
         {
-            Dictionary<int, int> unreadCounter = new Dictionary<int, int>();
-
-            var messages =  await _context.Messages
-                .Where(m => m.RecipenetUsername == currentUser && m.DateRead == null)
-                .ProjectTo<MessageDto>(_mapper.ConfigurationProvider)
-                .ToListAsync();
-
-
-            foreach (var message in messages)
-            {
-                if (unreadCounter.ContainsKey(message.Id))
-                {
-                    unreadCounter[message.Id]++;
-                }
-                else
-                {
-                    unreadCounter.Add(message.Id, 1);
-                }
-            }
-
-            return unreadCounter;
-
+            return await _context.Messages.Where(msg => msg.RecipenetUsername == username && msg.DateRead == null).CountAsync();
         }
 
-        public async Task<Message> PreviousLast(string user1, string user2)
+        public async Task<int> GetUnreadCountFromUser(string username, string senderUsername)
         {
-            return await _context.Messages
-                .Where(m => (m.SenderUsername == user1 && m.RecipenetUsername == user2 && m.LastMessage) || 
-                    (m.SenderUsername == user2 && m.RecipenetUsername == user1 && m.LastMessage)
-                )
-                .FirstOrDefaultAsync();
+            return await _context.Messages.Where(msg => msg.DateRead == null &&  msg.RecipenetUsername == username && msg.SenderUsername == senderUsername).CountAsync();
+        }
+
+        public void RemoveConnection(Connection connection)
+        {
+            _context.Connections.Remove(connection);
         }
 
         public async Task<bool> SaveAllAsync()

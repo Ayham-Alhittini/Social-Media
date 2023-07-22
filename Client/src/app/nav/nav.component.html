@@ -13,7 +13,13 @@
               <a class="nav-link" routerLinkActive="active" routerLink="/lists">Lists</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" routerLinkActive="active" routerLink="/messages">Messages</a>
+              <a class="nav-link position-relative" routerLinkActive="active" routerLink="/messages">
+                Messages 
+                <span class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger" 
+                *ngIf="messageService.TotalUnreadCount > 0">
+                  {{messageService.TotalUnreadCount}}
+                </span>
+              </a>
             </li>
           </ng-container>
         </ul>

@@ -1,17 +1,23 @@
-<div class="row" *ngIf="messages.length > 0">
-    <div class="col-3" style="background-color: rgb(230, 230, 230); border-radius: 1%;">
-        <ul class="list-group mt-3" style="height:700px; overflow-y: scroll;"  >
-            <li class="list-group-item" style="cursor: pointer;" *ngFor="let msg of messages; let idx = index" 
-            [ngClass]="{'active' : idx === activeChat}" (click)="onChatLoadRoute(msg)">
-                <app-message-card [message]="msg" [me]="user.username"></app-message-card>
-            </li>
-          </ul>
+<div class="row" *ngIf="list.length > 0">
+    <div class="col-4">
+      <ul class="list-group">
+        <li class="list-group-item"
+            *ngFor="let msg of list; 
+            let idx = index" 
+            [class.active]="idx === selectedChat"
+            (click)="selectChat(idx)"
+            style="cursor: pointer;"
+         >
+            <app-message-card [user]="user" [message]="msg" ></app-message-card>
+        </li>
+      </ul>  
     </div>
-    <div class="col-9">
-        <app-member-messages [username]="OtherPersonActive()" [messages]="chatMessageThread"></app-member-messages>
+    <div class="col-8">
+      <h3 *ngIf="selectedChat === -1" style="text-align: center;">Select chat to open it</h3>
+      <app-member-messages *ngIf="selectedChat >= 0" [username]="messageService.getChatName(user, list[selectedChat])" ></app-member-messages>
     </div>
 </div>
-<div *ngIf="messages.length === 0 && !isLoading" style="text-align: center;">
-    <h2>You don't have any chat to show go to</h2>
-    <button class="btn btn-primary" routerLink="/members">Matches</button>
+
+<div *ngIf="list.length === 0 && !loading">
+  <h3 style="text-align: center;">You have no messages</h3>
 </div>

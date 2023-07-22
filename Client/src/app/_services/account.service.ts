@@ -3,12 +3,13 @@ import { Injectable } from '@angular/core';
 import {BehaviorSubject, tap} from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from '../Models/user';
+import { PresenceService } from './presence.service';
 @Injectable({
   providedIn: 'root'
 })
 export class AccountService {
 
-  constructor(private http : HttpClient) { }
+  constructor(private http : HttpClient, private presenceService: PresenceService) { }
 
   private baseUrl = environment.apiBase;
 
@@ -32,6 +33,7 @@ export class AccountService {
 
     if (user) {
       this.loadedUser.next(JSON.parse(user));
+      this.presenceService.createHubConnection(JSON.parse(user));
     }
   }
 
@@ -39,6 +41,8 @@ export class AccountService {
     localStorage.removeItem('user');
     this.loadedUser.next(null);
     window.location.href = '/';
+
+    this.presenceService.stopHubConnection();
   }
 
 
@@ -55,5 +59,7 @@ export class AccountService {
   setCurrentUser(user : User) {
     this.loadedUser.next(user);
     localStorage.setItem('user', JSON.stringify(user));
+
+    this.presenceService.createHubConnection(user);
   }
 }

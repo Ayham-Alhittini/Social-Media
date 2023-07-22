@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { AccountService } from '../_services/account.service';
+import { MessagesService } from '../_services/messages.service';
 
 @Component({
   selector: 'app-nav',
@@ -12,7 +13,8 @@ import { AccountService } from '../_services/account.service';
 })
 export class NavComponent implements OnInit, OnDestroy {
 
-  constructor(public accountService : AccountService, private router : Router, private toastr : ToastrService,) { }
+  constructor(public accountService : AccountService, private router : Router, private toastr : ToastrService,
+    public messageService: MessagesService) { }
   userSub : Subscription;
 
   ngOnInit(): void {

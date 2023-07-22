@@ -1,8 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { take, tap } from 'rxjs';
 import { Message } from 'src/app/Models/message';
-import { AccountService } from 'src/app/_services/account.service';
+import { User } from 'src/app/Models/user';
+import { MessagesService } from 'src/app/_services/messages.service';
 
 @Component({
   selector: 'app-message-card',
@@ -10,32 +9,9 @@ import { AccountService } from 'src/app/_services/account.service';
   styleUrls: ['./message-card.component.css']
 })
 export class MessageCardComponent{
+  @Input() user: User;
+  @Input()message: Message;
 
-  @Input() message: Message;
-  @Input() me : string= null;
+  constructor(public messageService: MessagesService){}
   
-  getName() {
-    if (this.message.senderUsername === this.me) {
-      return this.message.recipenetUsername;
-    } else {
-      return this.message.senderUsername;
-    }
-  }
-
-  determineSender() {
-    if (this.message.senderUsername === this.me) {
-      return this.message?.content ?  'You: ' : '';
-    } else {
-      return '';
-    }
-  }
-
-  getImage() {
-    
-    if (this.message.senderUsername === this.me) {
-      return this.message.recipenetPhotoUrl;
-    } else {
-      return this.message.senderPhotoUrl;
-    }
-  }
 }

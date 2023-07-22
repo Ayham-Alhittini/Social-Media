@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Dating App\\Dating App Backend\\Dating App Backend\\Dating App Backend.csproj": {}
+    "D:\\Dating-App\\Dating App Backend\\Dating App Backend\\Dating App Backend.csproj": {}
   },
   "projects": {
-    "D:\\Dating App\\Dating App Backend\\Dating App Backend\\Dating App Backend.csproj": {
+    "D:\\Dating-App\\Dating App Backend\\Dating App Backend\\Dating App Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\Dating App Backend.csproj",
+        "projectUniqueName": "D:\\Dating-App\\Dating App Backend\\Dating App Backend\\Dating App Backend.csproj",
         "projectName": "Dating App Backend",
-        "projectPath": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\Dating App Backend.csproj",
+        "projectPath": "D:\\Dating-App\\Dating App Backend\\Dating App Backend\\Dating App Backend.csproj",
         "packagesPath": "C:\\Users\\ayham\\.nuget\\packages\\",
-        "outputPath": "D:\\Dating App\\Dating App Backend\\Dating App Backend\\obj\\",
+        "outputPath": "D:\\Dating-App\\Dating App Backend\\Dating App Backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ayham\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -22,6 +22,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\sdk\\7.0.306\\Sdks\\Microsoft.NET.Sdk.Web\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -98,7 +99,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.202\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
         }
       }
     }

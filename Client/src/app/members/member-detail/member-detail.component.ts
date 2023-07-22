@@ -3,27 +3,37 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgxGalleryAnimation, NgxGalleryImage, NgxGalleryOptions } from '@kolkov/ngx-gallery';
 import { TabDirective, TabsetComponent } from 'ngx-bootstrap/tabs';
 import { ToastrService } from 'ngx-toastr';
+import { take } from 'rxjs';
 import { Member } from 'src/app/Models/member';
 import { Message } from 'src/app/Models/message';
+import { User } from 'src/app/Models/user';
+import { AccountService } from 'src/app/_services/account.service';
 import { MemberService } from 'src/app/_services/member.service';
 import { MessagesService } from 'src/app/_services/messages.service';
+import { PresenceService } from 'src/app/_services/presence.service';
 
 @Component({
   selector: 'app-member-detail',
   templateUrl: './member-detail.component.html',
   styleUrls: ['./member-detail.component.css']
 })
-export class MemberDetailComponent implements OnInit{
+export class MemberDetailComponent implements OnInit, OnDestroy{
 
   @ViewChild('memberTabs', {static: true})memberTabs: TabsetComponent;
   state = ''
   member : Member;
-  messages: Message[] = [];
   activeTab: TabDirective;
-
+  user: User;
 
   constructor(private route : ActivatedRoute, private memberService : MemberService,
-    private toastr: ToastrService, private messagesService: MessagesService, private router: Router) { }
+    private toastr: ToastrService, private messagesService: MessagesService, private router: Router,
+    public presenceService: PresenceService, private accountService: AccountService) {
+      this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    }
+
+  ngOnDestroy(): void {
+    this.messagesService.stopConnection();
+  }
  
 
   galleryOptions: NgxGalleryOptions[];
@@ -47,6 +57,7 @@ export class MemberDetailComponent implements OnInit{
     this.route.data.subscribe({
       next: data => {
         this.member = data['member'];
+        this.user = data['user']; 
       }
     });
     this.route.queryParams.subscribe({
@@ -56,6 +67,7 @@ export class MemberDetailComponent implements OnInit{
         }
       }
     });
+
     this.state = this.member.isLiked ? "Unlike" : "Like";
     this.galleryImages = this.getImages();
     this.galleryOptions = [
@@ -88,22 +100,18 @@ export class MemberDetailComponent implements OnInit{
     });
   }
 
-  loadMessages() {
-    if (this.member.userName) {
-      this.messagesService.GetMessagesThread(this.member.userName).subscribe({
-        next: response => {
-          this.messages = response;
-        }
-      });
+  onTabActivaited(data: TabDirective) {
+    this.activeTab = data;
+
+
+    if (this.activeTab.heading === 'Messages' && this.user) {
+        this.messagesService.createHubConnection(this.user, this.member.userName);
+    } else {
+      this.messagesService.stopConnection();
     }
+    
   }
 
-  onTabActivaited(data: TabDirective) {
-    
-    if (data.heading === 'Messages')
-      this.router.navigateByUrl("/messages?user=" + this.member.userName);
-    
-  }
   selectTab(heading: string) {
     if (this.memberTabs) {
       this.memberTabs.tabs.find(x => x.heading === heading).active = true;

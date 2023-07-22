@@ -14,8 +14,7 @@
         public DateTime MessageSent { get; set; } = DateTime.UtcNow;
         public bool SenderDeleted { get; set; }
         public bool RecipenetDeleted { get; set; }
-        public bool LastMessage { get; set; }
-        public int UnreadCount { get; set; }
+        public string GroupName { get; set; }
 
     }
 }
