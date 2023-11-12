@@ -1,9 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MessagesService } from '../_services/messages.service';
 import { Message } from '../Models/message';
 import { User } from '../Models/user';
 import { AccountService } from '../_services/account.service';
 import { take } from 'rxjs';
+import { MessageListItem } from '../Models/message-list-item';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
+import { ChatGroupManagementService } from '../_services/chat-group-management.service';
 
 @Component({
   selector: 'app-messages',
@@ -11,13 +15,28 @@ import { take } from 'rxjs';
   styleUrls: ['./messages.component.css']
 })
 export class MessagesComponent implements OnInit, OnDestroy{
-  list: Message[] = [];
+
+  @ViewChild('closeCreateGroupChatBtn') closeBtn: ElementRef;
+
+  list: MessageListItem[] = [];
   user: User;
   selectedChat = -1;
   loading = false;
 
+  fileCleaner = null;
+
+  newGroup = {
+    groupName: '',
+    groupDescription: '',
+    groupPicture: null
+  };
+
+  invalidFile = false;
+  submitted = false;
 
   constructor(public messageService: MessagesService,
+    private chatGroupService: ChatGroupManagementService,
+    private toaster: ToastrService,
     private accountService:AccountService){
       accountService.loadedUser.pipe(take(1)).subscribe({
         next: res => this.user = res
@@ -25,32 +44,59 @@ export class MessagesComponent implements OnInit, OnDestroy{
   }
   
   ngOnInit(): void {
-    this.loading = true;
+    
     this.messageService.onMessagesComponent = true;
-
     ////fetch the messages list
+    this.loadChats();
+    this.syncMessages();
+  }
+
+  loadChats() {
+    this.loading = true;
     this.messageService.GetMessages().subscribe({
       next: res => {
         this.list = res;
         this.loading = false;
+      },
+      error: err => {
+        this.loading = false;
+        console.log(err);
       }
     });
+  }
 
+  onSelectedGroupPictureChange(event: any) {
+    const selectedFile = event.target.files[0];
+    
+    if (selectedFile.type.indexOf('image') === -1) 
+    {
+      this.invalidFile = true;
+      this.newGroup.groupPicture = null;
+      this.fileCleaner = null;
+      return;
+    }
+    else
+    {
+      this.invalidFile = false;
+    }
 
-    ///update last message on message list
+    this.newGroup.groupPicture = selectedFile;
+  }
+
+  syncMessages() {
+    // /update last message on message list
     this.messageService.lastMessageUpdate.subscribe({
       next: (msg: Message) => {
         
         ///message i sent
         if (this.user.username === msg.senderUsername) 
         {
-          const chatName = msg.recipenetUsername;
           
-          const sendedChat = this.list.find(x => this.messageService.getChatName(this.user, x) === chatName);
-  
+          const sendedChat = this.list.find(x => x.groupName === msg.groupName);
+          
           sendedChat.content = msg.content;
-  
-          this.list = this.list.filter(x => this.messageService.getChatName(this.user, x) !== chatName);
+
+          this.list = this.list.filter(x => x.groupName !== sendedChat.groupName);
   
           this.list = [sendedChat, ...this.list];
           this.selectedChat = 0;
@@ -58,17 +104,13 @@ export class MessagesComponent implements OnInit, OnDestroy{
         ///message i get
         else
         {
-          
-          const selectedChatName = this.selectedChat === -1 ? null : this.messageService.getChatName(this.user, this.list[this.selectedChat]);
-
           ///check if it's on the list
-          const chatName = msg.senderUsername;
-          const recivedChat = this.list.find(x => this.messageService.getChatName(this.user, x) === chatName);
+          const recivedChat = this.list.find(x => x.groupName === msg.groupName);
           
-          if (recivedChat)
+          if (recivedChat)//on the list
           {
             ///check if it's the active chat
-            if (this.selectedChat !== -1 && selectedChatName === chatName) 
+            if (this.selectedChat !== -1 && this.list[this.selectedChat].groupName === msg.groupName) 
             {
               recivedChat.unreadCount = 0; 
             }
@@ -77,14 +119,13 @@ export class MessagesComponent implements OnInit, OnDestroy{
               recivedChat.unreadCount++;
             }
             
-            this.list = this.list.filter(x => this.messageService.getChatName(this.user, x) !== chatName);
+            this.list = this.list.filter(x => x.groupName !== msg.groupName);
             recivedChat.content = msg.content;
             this.list = [recivedChat, ...this.list];
 
             ///find the new index of the selected chat
             for (let index = 0; index < this.list.length && this.selectedChat !== -1; index++) {
-              const element = this.messageService.getChatName(this.user, this.list[index]);
-              if (element === selectedChatName)
+              if (this.list[index].groupName === this.list[this.selectedChat].groupName)
               { 
                 this.selectedChat = index;
                 break; 
@@ -95,9 +136,19 @@ export class MessagesComponent implements OnInit, OnDestroy{
           else
           {
             ///could not be the active chat
-            msg.unreadCount = 1;
-            msg.listPhotoUrl = msg.senderPhotoUrl;
-            this.list = [msg, ...this.list];
+            var newMessageList : MessageListItem = {
+              chatName : msg.senderUsername,
+              chatPhoto: msg.senderPhotoUrl,
+              content: msg.content,
+              groupName: this.messageService.getGroupName(this.user.username, msg.senderUsername),
+              isGroupMessage: false,
+              isSystemMessage: false,
+              messageSent: null,
+              senderUsername: msg.senderUsername,
+              unreadCount: 1
+            };
+            //add it to the list
+            this.list = [newMessageList, ...this.list];
           }
         }
 
@@ -108,11 +159,49 @@ export class MessagesComponent implements OnInit, OnDestroy{
 
   selectChat(idx: number) {
     this.selectedChat = idx;
+
     this.list[this.selectedChat].unreadCount = 0;
-    this.messageService.stopConnection();
-    this.messageService.createHubConnection(this.user, this.messageService.getChatName(this.user, this.list[this.selectedChat]));
+
+    this.messageService.stopConnection();///to stop the previous connection if any
+
+    this.messageService.createHubConnection(this.user,this.list[idx].groupName);
   }
 
+  resetCreateChatGroupModal() {
+    this.fileCleaner = null;
+    this.invalidFile = false;
+    this.submitted = false;
+    
+    this.newGroup = {
+      groupName: '',
+      groupDescription: '',
+      groupPicture: null
+    };
+  }
+
+  createChatGroup() {
+    this.submitted = true;
+
+    if (this.newGroup.groupName.trim() === '' || this.newGroup.groupDescription.trim() === '' || this.invalidFile)
+    {
+      this.toaster.error('fill the form correctly');
+      return;
+    }
+    
+    const formData = new FormData();
+    formData.append('GroupName', this.newGroup.groupName);
+    formData.append('GroupDescription', this.newGroup.groupDescription);
+    formData.append('GroupPicture', this.newGroup.groupPicture);
+    
+    
+    this.chatGroupService.createGroupChat(formData).subscribe(response => {
+      this.toaster.success('Created successfuly');
+      this.messageService.TotalUnreadCount += 1;
+      this.loadChats();
+      this.resetCreateChatGroupModal();
+      this.closeBtn.nativeElement.click();
+    });
+  }
 
   ngOnDestroy(): void {
     this.messageService.onMessagesComponent = false;

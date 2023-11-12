@@ -3,9 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgxGalleryAnimation, NgxGalleryImage, NgxGalleryOptions } from '@kolkov/ngx-gallery';
 import { TabDirective, TabsetComponent } from 'ngx-bootstrap/tabs';
 import { ToastrService } from 'ngx-toastr';
-import { take } from 'rxjs';
 import { Member } from 'src/app/Models/member';
-import { Message } from 'src/app/Models/message';
 import { User } from 'src/app/Models/user';
 import { AccountService } from 'src/app/_services/account.service';
 import { MemberService } from 'src/app/_services/member.service';
@@ -26,7 +24,7 @@ export class MemberDetailComponent implements OnInit, OnDestroy{
   user: User;
 
   constructor(private route : ActivatedRoute, private memberService : MemberService,
-    private toastr: ToastrService, private messagesService: MessagesService, private router: Router,
+    private toastr: ToastrService, public messagesService: MessagesService, private router: Router,
     public presenceService: PresenceService, private accountService: AccountService) {
       this.router.routeReuseStrategy.shouldReuseRoute = () => false;
     }
@@ -105,7 +103,7 @@ export class MemberDetailComponent implements OnInit, OnDestroy{
 
 
     if (this.activeTab.heading === 'Messages' && this.user) {
-        this.messagesService.createHubConnection(this.user, this.member.userName);
+      this.messagesService.createHubConnection(this.user, this.messagesService.getGroupName(this.user.username, this.member.userName));
     } else {
       this.messagesService.stopConnection();
     }

@@ -5,6 +5,7 @@ import { Message } from '../Models/message';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { User } from '../Models/user';
 import { BehaviorSubject, take } from 'rxjs';
+import { MessageListItem } from '../Models/message-list-item';
 
 @Injectable({
   providedIn: 'root'
@@ -22,19 +23,25 @@ export class MessagesService {
   TotalUnreadCount = 0;
   
   lastMessageUpdate = new EventEmitter<Message>();
+  RecipientLastConnection = new EventEmitter<Date>();//in case it's group chat or participant is online then it will be max | if user not have connection before then min | otherwise last connection
   onMessagesComponent = false;
 
 
-  createHubConnection(user: User, otherUsername: string) {
+  createHubConnection(user: User, groupName: string) {
 
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(this.hubUrl + 'message?user=' + otherUsername, {
+      .withUrl(this.hubUrl + 'message?groupName=' + groupName, {
         accessTokenFactory: () => user.token
       })
       .withAutomaticReconnect()
       .build();
     
     this.hubConnection.start().catch(error => console.log(error));
+
+
+    this.hubConnection.on('LastConnection', lastConnection => {
+      this.RecipientLastConnection.emit(lastConnection);
+    });
 
     this.hubConnection.on('ReciveMessageThread', messages => {
       this.messageThreadSource.next(messages);
@@ -63,15 +70,15 @@ export class MessagesService {
   }
 
   GetMessages() {
-    return this.http.get<Message[]>(this.baseUrl + 'messages/list');
+    return this.http.get<MessageListItem[]>(this.baseUrl + 'messages/list');
   }
 
   GetMessagesThread(username: string) {
     return this.http.get<Message[]>(this.baseUrl + 'messages/thread/' + username);
   }
   
-  async sendMessage(username: string, content: string) {
-    return this.hubConnection?.invoke('SendMessage', {'recipenetUsername': username,'content': content})
+  async sendMessage(groupName: string, content: string) {
+    return this.hubConnection?.invoke('SendMessage', {'groupName': groupName,'content': content})
       .catch(error => console.log(error));
   }
 
@@ -86,11 +93,12 @@ export class MessagesService {
   getUnreadCountFormUser(senderName: string) {
     return this.http.get(this.baseUrl + 'Messages/get-unread-count/' + senderName);
   }
-  
+
+
   //////helper method
-  getChatName(user: User, message: Message) {
-    return user.username === message.recipenetUsername 
-    ? message.senderUsername : message.recipenetUsername;
+
+  getGroupName(username: string, otherUsername: string) {///only for single chat
+    return username < otherUsername ? username + '-' + otherUsername : otherUsername + '-' + username;
   }
 
   cutLargeMessage(content: string) {

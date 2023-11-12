@@ -1,5 +1,13 @@
 <div class="row" *ngIf="list.length > 0">
     <div class="col-4">
+      <div class="manage-group-btn dropdown" dropdown>
+        <a class="btn" dropdownToggle>
+          <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+        </a>
+        <div class="dropdown-menu mt-3" style="width: 98%;" *dropdownMenu>
+          <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#create-chat-group" (click)="resetCreateChatGroupModal()">New group</a>
+        </div>
+      </div>
       <ul class="list-group">
         <li class="list-group-item"
             *ngFor="let msg of list; 
@@ -8,16 +16,61 @@
             (click)="selectChat(idx)"
             style="cursor: pointer;"
          >
-            <app-message-card [user]="user" [message]="msg" ></app-message-card>
+            <app-message-card [message]="msg"></app-message-card>
         </li>
       </ul>  
     </div>
     <div class="col-8">
       <h3 *ngIf="selectedChat === -1" style="text-align: center;">Select chat to open it</h3>
-      <app-member-messages *ngIf="selectedChat >= 0" [username]="messageService.getChatName(user, list[selectedChat])" ></app-member-messages>
+      <app-member-messages *ngIf="selectedChat >= 0" 
+        [username]="this.list[selectedChat].chatName" 
+        [groupName]="this.list[selectedChat].groupName"
+        [doesHaveHeader]="true"
+        [chatPhoto]="this.list[selectedChat].chatPhoto !== null ? this.list[selectedChat].chatPhoto : this.list[selectedChat].isGroupMessage ? './assets/group-user.png' : './assets/user.png'"
+        [isGroupMessage]="this.list[selectedChat].isGroupMessage"
+        ></app-member-messages>
     </div>
 </div>
 
 <div *ngIf="list.length === 0 && !loading">
   <h3 style="text-align: center;">You have no messages</h3>
+</div>
+
+<!-- Create group chat modal -->
+<div class="modal fade" id="create-chat-group" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Create chat group</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form >
+
+          <div class="mb-3">
+            <label>Group Name</label>
+            <input [class.is-invalid]="submitted && newGroup.groupName.trim() === ''"
+            type="text" class="form-control" name="groupName" [(ngModel)]="newGroup.groupName">
+          </div>
+
+          <div class="mb-3">
+            <label>Group description</label>
+            <input [class.is-invalid]="submitted && newGroup.groupDescription.trim() === ''"
+            type="text" class="form-control" name="groupDescription" [(ngModel)]="newGroup.groupDescription">
+          </div>
+
+          <div class="mb-3">
+            <label>Group picture</label>
+            <input [class.is-invalid]="invalidFile"
+             type="file" name="groupPicture" [(ngModel)]="fileCleaner" class="form-control" (change)="onSelectedGroupPictureChange($event)">
+          </div>
+          
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button #closeCreateGroupChatBtn type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" for="createChatGroup" [disabled]="false" class="btn btn-primary" (click)="createChatGroup()">Create</button>
+      </div>
+    </div>
+  </div>
 </div>

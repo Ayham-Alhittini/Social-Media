@@ -18,3 +18,59 @@
     max-height: 50px;
 }
 
+.system-message {
+    display: flex;
+    justify-content: center;
+    color: #54656f;
+}
+
+.chat-header {
+    background-color: #F0F2F5;
+    width: 100%;
+    height: 50px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    box-shadow: -80px 0px 0px 0px #F0F2F5;
+}
+
+/* for group information */
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 10000;
+    top: 0;
+    right: 0;
+    background-color: #f1f1f1;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    margin-top: 30px;
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 36px;
+    margin-right: 50px;
+}
+
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}

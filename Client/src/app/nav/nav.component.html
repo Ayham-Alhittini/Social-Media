@@ -6,12 +6,15 @@
       </button>
         <ul class="navbar-nav me-auto mb-2 mb-md-0">
           <ng-container *ngIf="(accountService.loadedUser | async)">
+
             <li class="nav-item">
               <a class="nav-link" aria-current="page" routerLinkActive="active"  routerLink="/members">Matches</a>
             </li>
+
             <li class="nav-item">
               <a class="nav-link" routerLinkActive="active" routerLink="/lists">Lists</a>
             </li>
+
             <li class="nav-item">
               <a class="nav-link position-relative" routerLinkActive="active" routerLink="/messages">
                 Messages 
@@ -21,6 +24,17 @@
                 </span>
               </a>
             </li>
+
+            <li class="nav-item">
+              <a class="nav-link position-relative" routerLinkActive="active" routerLink="/group-invites">
+                Group invites 
+                <span class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger" 
+                *ngIf="1 > 0">
+                  {{1000}}
+                </span>
+              </a>
+            </li>
+
           </ng-container>
         </ul>
 

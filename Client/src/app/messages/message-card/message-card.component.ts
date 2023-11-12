@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Message } from 'src/app/Models/message';
-import { User } from 'src/app/Models/user';
+import { MessageListItem } from 'src/app/Models/message-list-item';
 import { MessagesService } from 'src/app/_services/messages.service';
 
 @Component({
@@ -9,9 +8,6 @@ import { MessagesService } from 'src/app/_services/messages.service';
   styleUrls: ['./message-card.component.css']
 })
 export class MessageCardComponent{
-  @Input() user: User;
-  @Input()message: Message;
-
+  @Input()message: MessageListItem;
   constructor(public messageService: MessagesService){}
-  
 }

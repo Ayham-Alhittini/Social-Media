@@ -1,4 +1,8 @@
-<div class="card">
+<div class="chat-header" style="cursor: pointer;" *ngIf="doesHaveHeader" (click)="onHeaderClick()">
+    <img src="{{chatPhoto}}" class="rounded-circle me-3" style="max-width: 50px;">
+    <strong>{{username}}</strong>
+</div>
+<div id="chat-messages" class="card">
     <div class="card-body"
         #scrollMe
         style="overflow-y: scroll; height: 80vh"
@@ -12,7 +16,7 @@
             *ngIf="(messageService.messageThread$ | async).length > 0" 
             class="chat">
             <li *ngFor="let message of (messageService.messageThread$ | async)">
-                <div>
+                <div *ngIf="!message.isSystemMessage">
                     <span class="chat-img ms-3 me-3" [ngClass]="message.senderUsername === user.username ? 'float-end' : 'float-start'">
                         <img class="rounded-circle" src="{{message.senderPhotoUrl || './assets/user.png'}}" 
                             alt="{{message.senderUsername}}">
@@ -20,15 +24,17 @@
                     <div class="chat-body">
                         <div class="header" [ngClass]="message.senderUsername === user.username ? 'text-end' : 'text-start'">
                             <small class="text-muted">
-                                <span class="fa fa-clock-o">{{message.messageSent | timeago}}</span>
-                                <span class="text-danger" *ngIf="!message.dateRead 
-                                    && message.senderUsername !== username">
+                                <span class="fa fa-clock-o">{{message.messageSent + (message.messageSent.endsWith('Z') ? '' : 'Z') | timeago}}</span>
+                                <span class="text-danger" *ngIf="user.username === message.senderUsername && (recipientLastConnection === null || recipientLastConnection < message.messageSent)">
                                     (unread)
                                 </span>
                             </small>
                         </div>
                         <p [ngClass]="message.senderUsername === user.username ? 'text-end' : 'text-start'">{{message.content}}</p>
                     </div>
+                </div>
+                <div *ngIf="message.isSystemMessage" class="system-message" title="System message">
+                    {{message.content}}
                 </div>
             </li>
         </ul>
@@ -53,3 +59,55 @@
         </form>
     </div>
 </div>
+
+<div id="groupInfo" class="sidenav">
+    <a href="javascript:void(0)" class="closebtn" (click)="closeNav()">&times;</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Clients</a>
+    <a href="#">Contact</a>
+  </div>

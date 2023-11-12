@@ -35,13 +35,11 @@ export class PresenceService {
     this.hubConnection.start().catch(error => console.log(error));
 
     this.hubConnection.on('UserIsOnline', username => {
-
       this.onlineUsers$.pipe(take(1)).subscribe({
         next: onlineUsers => {
           this.onlineUsersSource.next([...onlineUsers, username]);
         }
       })
-      
     });
 
     this.hubConnection.on('UserIsOffline', username => {
@@ -83,6 +81,7 @@ export class PresenceService {
   }
 
   stopHubConnection() {
-    this.hubConnection.stop().catch(error => console.log(error));
+    if (this.hubConnection)
+      this.hubConnection.stop().catch(error => console.log(error));
   }
 }

@@ -1,7 +1,7 @@
 <div class="d-flex">
-    <img src="{{message.listPhotoUrl}}" alt="chat photo" class="rounded-circle me-2" style="max-width: 60px;">
+    <img src="{{message.chatPhoto || (message.isGroupMessage ? './assets/group-user.png' : './assets/user.png')}}" alt="chat photo" class="rounded-circle me-2" style="max-width: 60px;">
     <div>
-        <strong class="d-block"> {{messageService.getChatName(user, message)}} </strong>
+        <strong class="d-block"> {{message.chatName}} </strong>
         <div class="d-flex">
             <p class="mr-auto">{{messageService.cutLargeMessage(message.content)}}</p>
             <p *ngIf="message.unreadCount > 0" class="badge bg-danger rounded-circle" style="position: absolute; right: 0; margin-right: 10px;">{{message.unreadCount}}</p>
