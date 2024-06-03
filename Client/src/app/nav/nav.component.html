@@ -1,57 +1,76 @@
 <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
-    <div class="container">
-      <a class="navbar-brand" routerLink="/">Dating App</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-        <ul class="navbar-nav me-auto mb-2 mb-md-0">
-          <ng-container *ngIf="(accountService.loadedUser | async)">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/">Social Media</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <ul class="navbar-nav me-auto mb-2 mb-md-0">
+      <ng-container *ngIf="(accountService.loadedUser | async)">
 
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" routerLinkActive="active"  routerLink="/members">Matches</a>
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" routerLinkActive="active" routerLink="/members">Matches</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" routerLinkActive="active" routerLink="/lists">Lists</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link position-relative" routerLinkActive="active" routerLink="/messages">
+            Messages 
+            <span class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger" 
+            *ngIf="messageService.TotalUnreadCount > 0">
+              {{messageService.TotalUnreadCount}}
+            </span>
+          </a>
+        </li>
+
+        <li style="cursor: pointer;" class="nav-item dropdown" dropdown>
+          <a class="nav-link position-relative" dropdownToggle routerLinkActive="active" (click)="toggleDropdown($event)">
+            Group invites
+            <span class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger" 
+            *ngIf="groupInvites.length > 0">
+              {{groupInvites.length}}
+            </span>
+          </a>
+          <ul class="dropdown-menu" *dropdownMenu [ngStyle]="{display: groupInvites.length === 0 ?'none' : ''}">
+            <li *ngFor="let invite of groupInvites">
+              <div class="dropdown-item d-flex align-items-center justify-content-between">
+                <span>{{invite.groupName}}, invited by {{invite.inviteByKnownAs}}</span>
+                <div>
+                  <button class="btn btn-success btn-sm ms-2" (click)="acceptInvite(invite)">
+                    <i class="fa fa-check"></i> Accept
+                  </button>
+                  <button class="btn btn-danger btn-sm ms-2" (click)="rejectInvite(invite)">
+                    <i class="fa fa-times"></i> Reject
+                  </button>
+                </div>
+              </div>
             </li>
+          </ul>
+        </li>
 
-            <li class="nav-item">
-              <a class="nav-link" routerLinkActive="active" routerLink="/lists">Lists</a>
-            </li>
+      </ng-container>
+    </ul>
 
-            <li class="nav-item">
-              <a class="nav-link position-relative" routerLinkActive="active" routerLink="/messages">
-                Messages 
-                <span class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger" 
-                *ngIf="messageService.TotalUnreadCount > 0">
-                  {{messageService.TotalUnreadCount}}
-                </span>
-              </a>
-            </li>
+    <form class="d-flex mx-auto" *ngIf="(accountService.loadedUser | async)" (ngSubmit)="searchUser()" autocomplete="off">
+      <input class="form-control me-2" type="text" placeholder="Search by username..." aria-label="Search" required [(ngModel)]="toSearchUsername" name="searchQuery">
+      <button class="btn btn-outline-light" type="submit">Search</button>
+    </form>
 
-            <li class="nav-item">
-              <a class="nav-link position-relative" routerLinkActive="active" routerLink="/group-invites">
-                Group invites 
-                <span class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger" 
-                *ngIf="1 > 0">
-                  {{1000}}
-                </span>
-              </a>
-            </li>
-
-          </ng-container>
-        </ul>
-
-          
-        <div class="dropdown" dropdown style="cursor: pointer;"  *ngIf="(accountService.loadedUser | async) as user">
-          <img src="{{user.photoUrl || './assets/user.png'}}" alt="user photo" class="myImage me-2">
-          <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.knownAs}}</a>
-          <div class="dropdown-menu mt-3" *dropdownMenu>
-            <a class="dropdown-item" routerLink="member/edit">Edit Profile</a>
-            <a class="dropdown-item" (click)="logout()">Logout</a>
-          </div>
-        </div>
-
-        <form *ngIf="!(accountService.loadedUser | async)" class="d-flex" (ngSubmit)="login(authForm)" #authForm="ngForm" autocomplete="off">
-          <input class="form-control me-2" type="text" placeholder="Username..." aria-label="text" required ngModel name="username">
-          <input class="form-control me-2" type="password" placeholder="Password..." aria-label="password" required ngModel name="password">
-          <button class="btn btn-success" type="submit">Login</button>
-        </form>
+    <div class="dropdown" dropdown style="cursor: pointer;" *ngIf="(accountService.loadedUser | async) as user">
+      <img src="{{user.photoUrl || './assets/user.png'}}" alt="user photo" class="myImage me-2">
+      <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Welcome {{user.knownAs}}</a>
+      <div class="dropdown-menu mt-3" *dropdownMenu>
+        <a class="dropdown-item" routerLink="member/edit">Edit Profile</a>
+        <a class="dropdown-item" (click)="logout()">Logout</a>
+      </div>
     </div>
-  </nav>
+
+    <form *ngIf="!(accountService.loadedUser | async)" class="d-flex" (ngSubmit)="login(authForm)" #authForm="ngForm" autocomplete="off">
+      <input class="form-control me-2" type="text" placeholder="Username..." aria-label="text" required ngModel name="username">
+      <input class="form-control me-2" type="password" placeholder="Password..." aria-label="password" required ngModel name="password">
+      <button class="btn btn-success" type="submit">Login</button>
+    </form>
+  </div>
+</nav>

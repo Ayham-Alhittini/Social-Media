@@ -5,7 +5,6 @@ import { User } from '../Models/user';
 import { AccountService } from '../_services/account.service';
 import { take } from 'rxjs';
 import { MessageListItem } from '../Models/message-list-item';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ChatGroupManagementService } from '../_services/chat-group-management.service';
 
@@ -37,7 +36,7 @@ export class MessagesComponent implements OnInit, OnDestroy{
   constructor(public messageService: MessagesService,
     private chatGroupService: ChatGroupManagementService,
     private toaster: ToastrService,
-    private accountService:AccountService){
+    accountService:AccountService){
       accountService.loadedUser.pipe(take(1)).subscribe({
         next: res => this.user = res
       })
@@ -49,6 +48,11 @@ export class MessagesComponent implements OnInit, OnDestroy{
     ////fetch the messages list
     this.loadChats();
     this.syncMessages();
+    this.chatGroupService.exitFromGroupEmitter.subscribe(() => {
+      this.loadChats();
+      this.messageService.stopConnection();
+      this.selectedChat = -1;
+    });
   }
 
   loadChats() {
@@ -162,6 +166,8 @@ export class MessagesComponent implements OnInit, OnDestroy{
 
     this.list[this.selectedChat].unreadCount = 0;
 
+    this.chatGroupService.closeGroupInfoEmitter.emit();
+
     this.messageService.stopConnection();///to stop the previous connection if any
 
     this.messageService.createHubConnection(this.user,this.list[idx].groupName);
@@ -205,6 +211,7 @@ export class MessagesComponent implements OnInit, OnDestroy{
 
   ngOnDestroy(): void {
     this.messageService.onMessagesComponent = false;
-    this.messageService.stopConnection()
+    this.messageService.stopConnection();
+    this.chatGroupService.closeGroupInfoEmitter.emit();
   }
 }

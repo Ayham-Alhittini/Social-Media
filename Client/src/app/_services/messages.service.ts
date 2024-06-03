@@ -6,13 +6,14 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { User } from '../Models/user';
 import { BehaviorSubject, take } from 'rxjs';
 import { MessageListItem } from '../Models/message-list-item';
+import { ChatGroupManagementService } from './chat-group-management.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessagesService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private chatGroupService: ChatGroupManagementService) { }
 
   baseUrl = environment.apiBase;
   hubUrl = environment.hubBase;
@@ -54,6 +55,9 @@ export class MessagesService {
         }
       })
       this.lastMessageUpdate.emit(newMessage);
+      if (newMessage.isGroupMessage && newMessage.isSystemMessage) {
+        this.chatGroupService.groupInfoUpdated.emit();
+      }
     });
 
     this.hubConnection.on('UnreadMessagesCount', unreadCount => {

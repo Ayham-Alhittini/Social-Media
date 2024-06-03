@@ -6,6 +6,7 @@ import { User } from '../Models/user';
 import { BehaviorSubject, take } from 'rxjs';
 import { Router } from '@angular/router';
 import { MessagesService } from './messages.service';
+import { ChatGroupManagementService } from './chat-group-management.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,8 @@ export class PresenceService {
   private hubConnection: HubConnection;
   private onlineUsersSource = new BehaviorSubject<string[]>([]);
   onlineUsers$ = this.onlineUsersSource.asObservable();
-  constructor(private toaster: ToastrService, private router: Router, private messagesService: MessagesService) { }
+  constructor(private toaster: ToastrService, private router: Router, 
+    private messagesService: MessagesService, private chatGroupService: ChatGroupManagementService) { }
 
   createHubConnection(user : User) {
 
@@ -78,6 +80,19 @@ export class PresenceService {
       this.messagesService.TotalUnreadCount++;
     });
 
+    this.hubConnection.on('YouKickedOut', () => {
+      this.chatGroupService.exitFromGroupEmitter.emit();
+    });
+
+    this.hubConnection.on('ReciveGroupInvite', () => {
+      this.chatGroupService.reciveGroupInviteEmitter.emit();
+    });
+
+  }
+
+  async sendGroupInvite(toInviteUsername: string) {
+    return this.hubConnection?.invoke('SendGroupInvite', toInviteUsername)
+      .catch(error => console.log(error));
   }
 
   stopHubConnection() {

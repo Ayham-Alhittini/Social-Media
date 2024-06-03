@@ -1,113 +1,57 @@
-<div class="chat-header" style="cursor: pointer;" *ngIf="doesHaveHeader" (click)="onHeaderClick()">
+<div class="chat-header" *ngIf="doesHaveHeader" (click)="onHeaderClick()">
     <img src="{{chatPhoto}}" class="rounded-circle me-3" style="max-width: 50px;">
     <strong>{{username}}</strong>
 </div>
 <div id="chat-messages" class="card">
     <div class="card-body"
-        #scrollMe
+    #scrollMe
         style="overflow-y: scroll; height: 80vh"
-        (scroll)="onScroll()"
-    >
+        (scroll)="onScroll()">
         <div *ngIf="(messageService.messageThread$ | async)?.length === 0">
             No messages yet... say hi by using the message box below
         </div>
-
-        <ul 
-            *ngIf="(messageService.messageThread$ | async).length > 0" 
-            class="chat">
+        <ul *ngIf="(messageService.messageThread$ | async).length > 0" class="chat">
             <li *ngFor="let message of (messageService.messageThread$ | async)">
-                <div *ngIf="!message.isSystemMessage">
-                    <span class="chat-img ms-3 me-3" [ngClass]="message.senderUsername === user.username ? 'float-end' : 'float-start'">
-                        <img class="rounded-circle" src="{{message.senderPhotoUrl || './assets/user.png'}}" 
-                            alt="{{message.senderUsername}}">
-                    </span>
-                    <div class="chat-body">
-                        <div class="header" [ngClass]="message.senderUsername === user.username ? 'text-end' : 'text-start'">
-                            <small class="text-muted">
-                                <span class="fa fa-clock-o">{{message.messageSent + (message.messageSent.endsWith('Z') ? '' : 'Z') | timeago}}</span>
-                                <span class="text-danger" *ngIf="user.username === message.senderUsername && (recipientLastConnection === null || recipientLastConnection < message.messageSent)">
-                                    (unread)
-                                </span>
-                            </small>
-                        </div>
-                        <p [ngClass]="message.senderUsername === user.username ? 'text-end' : 'text-start'">{{message.content}}</p>
-                    </div>
-                </div>
-                <div *ngIf="message.isSystemMessage" class="system-message" title="System message">
-                    {{message.content}}
-                </div>
-            </li>
-        </ul>
-    </div>
-
-    <div class="card-footer">
-        <form #messageForm="ngForm" (ngSubmit)="sendMessage()" autocomplete="off">
-            <div class="input-group">
-                <input 
-                    name="messageContent"
-                    required
-                    [(ngModel)]="messageContent"
-                    type="text" 
-                    class="form-control input-sm" 
-                    placeholder="Send a private message">
-                <div class="input-group-append">
-                    <button [disabled]="!messageForm.valid || loading" class="btn btn-primary" type="submit">Send
-                        <i *ngIf="loading" class="fa fa-spinner fa-spin"></i>
-                    </button>
-                </div>
+          <div *ngIf="!message.isSystemMessage">
+            <span class="chat-img ms-3 me-3" [ngClass]="message.senderUsername === user.username ? 'float-end' : 'float-start'">
+                <img class="rounded-circle" src="{{message.senderPhotoUrl || './assets/user.png'}}" alt="{{message.senderUsername}}">
+            </span>
+            <div class="chat-body">
+                <div class="header" [ngClass]="message.senderUsername === user.username ? 'text-end' : 'text-start'">
+                    <small class="text-muted">
+                        <span class="fa fa-clock-o">{{message.messageSent + (message.messageSent.endsWith('Z') ? '' : 'Z') | timeago}}</span>
+                        <span class="text-danger" *ngIf="!message.isGroupMessage && user.username === message.senderUsername && (recipientLastConnection === null || recipientLastConnection < message.messageSent)">
+                            (unread)
+                        </span>
+                </small>
             </div>
-        </form>
-    </div>
+              <p [ngClass]="message.senderUsername === user.username ? 'text-end' : 'text-start'">{{message.content}}</p>
+            </div>
+        </div>
+        <div *ngIf="message.isSystemMessage" class="system-message" title="System message">
+            {{message.content}}
+        </div>
+    </li>
+</ul>
+</div>
+<div class="card-footer">
+    <form #messageForm="ngForm" (ngSubmit)="sendMessage()" autocomplete="off">
+        <div class="input-group">
+            <input 
+            name="messageContent"
+            required
+            [(ngModel)]="messageContent"
+            type="text" 
+            class="form-control input-sm" 
+            placeholder="Send a private message">
+            <div class="input-group-append">
+                <button [disabled]="!messageForm.valid || loading" class="btn btn-primary" type="submit">Send
+                    <i *ngIf="loading" class="fa fa-spinner fa-spin"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
 </div>
 
-<div id="groupInfo" class="sidenav">
-    <a href="javascript:void(0)" class="closebtn" (click)="closeNav()">&times;</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Clients</a>
-    <a href="#">Contact</a>
-  </div>
+<app-group-info *ngIf="isGroupMessage" [groupId]="groupName"></app-group-info>

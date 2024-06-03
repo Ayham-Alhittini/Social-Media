@@ -27,6 +27,7 @@ import { DatePickerComponent } from './_forms/date-picker/date-picker.component'
 import { MemberMessagesComponent } from './members/member-messages/member-messages.component';
 import { MessagesComponent } from './messages/messages.component';
 import { MessageCardComponent } from './messages/message-card/message-card.component';
+import { GroupInfoComponent } from './group-info/group-info.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { MessageCardComponent } from './messages/message-card/message-card.compo
     DatePickerComponent,
     MemberMessagesComponent,
     MessagesComponent,
-    MessageCardComponent
+    MessageCardComponent,
+    GroupInfoComponent
   ],
   imports: [
     BrowserModule,

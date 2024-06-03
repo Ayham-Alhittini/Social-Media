@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { take } from 'rxjs';
 import { User } from 'src/app/Models/user';
 import { AccountService } from 'src/app/_services/account.service';
+import { ChatGroupManagementService } from 'src/app/_services/chat-group-management.service';
 import { MessagesService } from 'src/app/_services/messages.service';
 
 @Component({
@@ -27,8 +28,9 @@ export class MemberMessagesComponent implements OnInit{
   loading = false;
 
   constructor(public messageService: MessagesService,
+    private chatGroupService: ChatGroupManagementService,
     private router: Router,
-    private accountService: AccountService) { 
+    accountService: AccountService) { 
     accountService.loadedUser.pipe(take(1)).subscribe({
       next: res => this.user = res
     })
@@ -69,20 +71,12 @@ export class MemberMessagesComponent implements OnInit{
     if (!this.isGroupMessage) {
       this.router.navigateByUrl('/members/' + this.username);
     } else {
-      this.openNav();
+      this.chatGroupService.openGroupInfoEmitter.emit();
     }
   }
 
 
-  openNav() {
-    document.getElementById("groupInfo").style.width = "450px";
-    document.getElementById("chat-messages").style.marginRight = "450px";
-  }
   
-  closeNav() {
-    document.getElementById("groupInfo").style.width = "0";
-    document.getElementById("chat-messages").style.marginRight = "0";
-  }
 
   private scrollToBottom(): void {
     if (this.disableScrollDown) {

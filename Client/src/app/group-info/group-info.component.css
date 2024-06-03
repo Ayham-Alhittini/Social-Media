@@ -1,0 +1,66 @@
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 10000;
+  top: 0;
+  right: 0;
+  background-color: #f1f1f1;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  margin-top: 30px;
+}
+
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 36px;
+  margin-right: 50px;
+}
+
+div#groupInfo.sidenav {
+  width: 450px;
+  position: absolute;
+  z-index: 0;
+  right: 303px;
+  top: 50px;
+  height: 836px;
+  display: none;
+}
+
+.dropdown-menu {
+  min-width: 0;
+}
+
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-group-item .badge {
+  margin-left: 10px;
+}
+
+.dropdown-toggle::after {
+  display: none;
+}
+
+.no-caret::after {
+  display: none;
+}
